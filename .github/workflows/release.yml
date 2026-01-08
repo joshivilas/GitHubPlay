@@ -1,0 +1,102 @@
+name: Build and Release Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.1)'
+        required: true
+        type: string
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set version
+        id: version
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Update manifest version
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          jq --arg version "$VERSION" '.version = $version' manifest.json > manifest.tmp
+          mv manifest.tmp manifest.json
+          cat manifest.json
+
+      - name: Create extension package
+        run: |
+          mkdir -p build
+          zip -r build/GithubPlay-v${{ steps.version.outputs.VERSION }}.zip \
+            manifest.json \
+            popup.html \
+            popup.js \
+            player.html \
+            player.js \
+            styles.css \
+            icons/icon16.png \
+            icons/icon48.png \
+            icons/icon128.png \
+            README.md
+          
+          echo "Package created: GithubPlay-v${{ steps.version.outputs.VERSION }}.zip"
+          ls -lh build/
+
+      - name: Generate checksums
+        run: |
+          cd build
+          sha256sum GithubPlay-v${{ steps.version.outputs.VERSION }}.zip > checksums.txt
+          cat checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: GithubPlay v${{ steps.version.outputs.VERSION }}
+          files: |
+            build/GithubPlay-v${{ steps.version.outputs.VERSION }}.zip
+            build/checksums.txt
+          body: |
+            ## GithubPlay v${{ steps.version.outputs.VERSION }}
+            
+            ### Installation
+            1. Download `GithubPlay-v${{ steps.version.outputs.VERSION }}.zip`
+            2. Go to `chrome://extensions/`
+            3. Enable "Developer mode"
+            4. Click "Load unpacked" and select the extracted folder
+            
+            ### Chrome Web Store
+            This version is ready for Chrome Web Store submission.
+            
+            ### Checksums
+            ```
+            $(cat build/checksums.txt)
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GithubPlay-v${{ steps.version.outputs.VERSION }}
+          path: build/GithubPlay-v${{ steps.version.outputs.VERSION }}.zip
+          retention-days: 90
+
+      - name: Summary
+        run: |
+          echo "## 🎉 Build Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Package:** GithubPlay-v${{ steps.version.outputs.VERSION }}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download the ZIP file from the release" >> $GITHUB_STEP_SUMMARY
+          echo "2. Go to [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole)" >> $GITHUB_STEP_SUMMARY
+          echo "3. Upload the ZIP file" >> $GITHUB_STEP_SUMMARY
+          echo "4. Submit for review" >> $GITHUB_STEP_SUMMARY
