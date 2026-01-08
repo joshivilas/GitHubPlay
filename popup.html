@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GithubPlay - Video Player</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 GithubPlay</h1>
+            <p class="subtitle">Play GitHub videos without downloading</p>
+        </div>
+
+        <div class="input-section">
+            <input 
+                type="text" 
+                id="urlInput" 
+                placeholder="Paste GitHub MP4 URL here..."
+                autocomplete="off"
+            >
+            <button id="playBtn">Play Video</button>
+        </div>
+
+        <div id="errorMsg" class="error-msg"></div>
+
+        <div class="instructions">
+            <h3>How to use:</h3>
+            <ol>
+                <li>Copy the GitHub URL of an MP4 file</li>
+                <li>Paste it in the input field above</li>
+                <li>Click "Play Video"</li>
+                <li>Video will open in a new tab</li>
+            </ol>
+            <p class="example">
+                <strong>Example:</strong><br>
+                <code>https://github.com/user/repo/blob/main/video.mp4</code>
+            </p>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
