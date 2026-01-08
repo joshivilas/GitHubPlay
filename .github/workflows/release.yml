@@ -65,19 +65,18 @@ jobs:
           body: |
             ## GithubPlay v${{ steps.version.outputs.VERSION }}
             
-            ### Installation
+            ### 📦 Installation
             1. Download `GithubPlay-v${{ steps.version.outputs.VERSION }}.zip`
-            2. Go to `chrome://extensions/`
-            3. Enable "Developer mode"
-            4. Click "Load unpacked" and select the extracted folder
+            2. Extract the ZIP file
+            3. Go to `chrome://extensions/`
+            4. Enable "Developer mode"
+            5. Click "Load unpacked" and select the extracted folder
             
-            ### Chrome Web Store
-            This version is ready for Chrome Web Store submission.
+            ### 🚀 Chrome Web Store Submission
+            This package is ready for Chrome Web Store submission. Upload the ZIP file directly.
             
-            ### Checksums
-            ```
-            $(cat build/checksums.txt)
-            ```
+            ### 🔐 Verification
+            SHA256 checksums are included in `checksums.txt`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
